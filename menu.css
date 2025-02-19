@@ -1,0 +1,36 @@
+.navbar, .dropdown-content button {
+    margin: 0;
+    padding: 0;
+}
+
+.navbar {
+    background-color: #333;
+}
+
+.dropdown-button, .dropdown-content button {
+    background-color: #333;
+    color: white;
+    padding: 3px 15px;
+    border: none;
+    cursor: pointer;
+    font-size: 14px;
+    width: 100%;
+    text-align: left;
+}
+
+.dropdown-button:hover, .dropdown-content button:hover {
+    background-color: #555;
+}
+
+.dropdown {
+    position: relative;
+    display: inline-block;
+}
+
+.dropdown-content {
+    display: none;
+    position: absolute;
+    width: 210px;
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.5);
+    z-index: 200000;
+}
