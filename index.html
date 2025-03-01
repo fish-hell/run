@@ -1,0 +1,619 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>html実行 v2.0</title>
+  <style>
+    @import url(menu.css);
+
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+      background-color: #eeffbb;
+    }
+
+
+    .iframe-size-controls input {
+      width: 60px;
+      margin-right: 5px;
+    }
+    .template-selector {
+      margin-left: 10px;
+    }
+   #editor {
+       width: 99%;
+       height: 230px;
+       border: 1px solid #ccc;
+       transition: all 0.2s ease-in-out;
+       margin-bottom: 10px;
+    }
+
+    ::-webkit-scrollbar {
+      width: 10px;
+      height: 10px;
+    }
+
+  ::-webkit-scrollbar-track {
+      background-color: #f0f0f0;
+      border-radius: 0;
+    }
+
+
+  ::-webkit-scrollbar-thumb {
+     background-color: #0115
+    }
+
+
+  ::-webkit-scrollbar-thumb:hover {
+      background-color: #0113;
+    }
+
+
+    .fullscreen {
+        position: fixed;
+        top: 26px;
+        left: 0;
+        width: 100vw !important;
+        height: calc(100vh - 26px) !important;
+        z-index: 100000 !important;
+        border: none;
+    }
+
+    #savemgr {
+      display: none;
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background-color: rgba(255, 255, 255, 0.95);
+      padding: 0 20px 20px 20px;
+      border-radius: 5px;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+      z-index: 300000;
+    }
+
+    #savemgr input[type=text] {
+      border: none;
+      outline: none;
+      font-size: 16px;
+      background-color: #0001;
+      padding: 5px 0;
+      border-radius: 0;
+      margin: 0;
+    }
+
+    #background {
+      position: absolute;
+      background-color: #0007;
+      z-index: 250000;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100%;
+    }
+
+    select {
+      width: 190px;
+      padding: 2px;
+      font-size: 14px;
+      border: none;
+      color: #fff;
+      background-color: #333;
+     }
+
+      #プレビュー {
+        width: 99%;
+        height: 400px;
+        border: 1px solid #777;
+        background-color: #fff;
+        transition: all 0.2s ease-in-out;
+      }
+   
+
+      input[type="checkbox"] {
+            transform: rotate(0deg);
+            scale: 1.2;
+            transition: all 0.3s;
+        }
+
+        input[type="checkbox"]:checked {
+            transform: rotate(360deg);
+        }
+
+
+      #iframeCtrl input[type=text] {
+         border: none;
+         outline: none;
+         font-size: 16px;
+         background-color: #fff1;
+         padding: 5px 0;
+         border-radius: 0;
+         margin: 0;
+     }
+
+  #run-button {
+    font-size: 15px;
+    color: #fff;
+    cursor: pointer;
+    padding: 5px 20px;
+    text-align:center;
+    border: none;
+    background-size: 300% 100%;
+    border-radius: 5px;
+    -webkit-transition: all .4s ease-in-out;
+    transition: all .4s ease-in-out;
+    background-image: linear-gradient(to right,hsl(100, 90%, 55%), hsl(70, 87%, 54%), hsl(80, 84%, 68%), hsl(100, 90%, 55%));
+    box-shadow: 0 4px 15px 0 hsl(100, 90%, 55%);
+    margin-bottom: 5px;
+    }
+
+  #run-button:hover {
+    background-position: 100% 0;
+    -webkit-transition: all .4s ease-in-out;
+    transition: all .4s ease-in-out;
+  }
+
+  #license {
+      display: none;
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background-color: rgba(255, 255, 255, 0.95);
+      padding: 10px 10px 25px 10px;
+      border-radius: 5px;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+      z-index: 400000;
+    }
+
+    #licenseIframe {
+      height:90vh;
+      width: 80vw;
+    }
+  #main { margin-left: 7px; }
+      
+  </style>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.37.1/ace.min.js" integrity="sha512-39pMYj4We1YvsGIsTFctdfIdkqFG09F5lVUM4NzwUgE20xuBHdPWI2Ra4AShMX4qMdwTN2vfb9ATOdkoMU512Q==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+  <script src="https://cdn.jsdelivr.net/npm/hotkeys-js@3.13.9/dist/hotkeys.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js" integrity="sha512-v2CJ7UaYy4JwqLDIrZUI/4hqeoQieOmAZNXBeQyjo21dadnwR+8ZaIJVT8EE2iyI61OV8e6M8PP2/4hpQINQ/g==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+  <script src="js/theme/gaming.js"></script>
+  <script src="js/theme/ultrachaos.js"></script>
+</head>
+<body>
+
+
+  <div class="navbar">
+
+    <div class="dropdown">
+        <button class="dropdown-button" onclick="togglemenu(1)">ファイル</button>
+        <div class="dropdown-content" id="menu1">
+            <button><select id="slotSelector"></select></button>
+            <button onclick="save()" id="save">スロットへ保存</button>
+            <button onclick="load()" id="load">スロットから読み込み</button>
+            <button onclick="deleteslot()">スロットの削除</button>
+            <button onclick="showSavemgr()">名前を付けてダウンロード</button>
+            <input type="file" id="fileInput" style="display:none" onchange="loadfile(event)" accept=".html,.htm,.shtml,.xhtml,.xht,.mdoc,.jsp,.asp,.aspx,.jshtml,.txt">
+            <button onclick="document.getElementById('fileInput').click()">ファイルから読み込み</button>
+        </div>
+    </div>
+
+    <div class="dropdown">
+        <button class="dropdown-button" onclick="togglemenu(2)">編集</button>
+        <div class="dropdown-content" id="menu2">
+            <button onclick="edit('n','undo')">元に戻す<span style="float: right;">Ctrl+Z</span></button>
+            <button onclick="edit('n','redo')">やり直す<span style="float: right;">Ctrl+Y</span></button>
+            <button onclick="edit('c','find')">検索<span style="float: right;">Ctrl+F</span></button>
+            <button onclick="edit('c','replace')">置換<span style="float: right;">Ctrl+H</span></button>
+            <button onclick="edit('c','gotoline')" id="gotoline">行番号に移動<span style="float: right;">Ctrl+L</span></button>
+            <button onclick="clearEditor()">エディターの内容をクリア</button>
+        </div>
+    </div>
+
+    
+    <div class="dropdown">
+        <button class="dropdown-button" onclick="togglemenu(3)">表示</button>
+        <div class="dropdown-content" id="menu3">
+            <button>エディターのテーマ:<select id="editortheme" onchange="changeEditorTheme(this.value)"><optgroup label="Bright"><option value="ace/theme/chrome">Chrome</option><option value="ace/theme/clouds">Clouds</option><option value="ace/theme/crimson_editor">Crimson Editor</option><option value="ace/theme/dawn">Dawn</option><option value="ace/theme/dreamweaver">Dreamweaver</option><option value="ace/theme/eclipse">Eclipse</option><option value="ace/theme/github_light_default">GitHub Light Default</option><option value="ace/theme/github">GitHub (Legacy)</option><option value="ace/theme/iplastic">IPlastic</option><option value="ace/theme/solarized_light">Solarized Light</option><option value="ace/theme/textmate">TextMate</option><option value="ace/theme/tomorrow">Tomorrow</option><option value="ace/theme/xcode">XCode</option><option value="ace/theme/kuroir">Kuroir</option><option value="ace/theme/katzenmilch">KatzenMilch</option><option value="ace/theme/sqlserver">SQL Server</option><option value="ace/theme/cloud_editor">CloudEditor</option></optgroup><optgroup label="Dark"><option value="ace/theme/ambiance">Ambiance</option><option value="ace/theme/chaos">Chaos</option><option value="ace/theme/clouds_midnight">Clouds Midnight</option><option value="ace/theme/dracula">Dracula</option><option value="ace/theme/cobalt">Cobalt</option><option value="ace/theme/gruvbox">Gruvbox</option><option value="ace/theme/gob">Green on Black</option><option value="ace/theme/idle_fingers">idle Fingers</option><option value="ace/theme/kr_theme">krTheme</option><option value="ace/theme/merbivore">Merbivore</option><option value="ace/theme/merbivore_soft">Merbivore Soft</option><option value="ace/theme/mono_industrial">Mono Industrial</option><option value="ace/theme/monokai">Monokai</option><option value="ace/theme/nord_dark">Nord Dark</option><option value="ace/theme/one_dark">One Dark</option><option value="ace/theme/pastel_on_dark">Pastel on dark</option><option value="ace/theme/solarized_dark">Solarized Dark</option><option value="ace/theme/terminal">Terminal</option><option value="ace/theme/tomorrow_night">Tomorrow Night</option><option value="ace/theme/tomorrow_night_blue">Tomorrow Night Blue</option><option value="ace/theme/tomorrow_night_bright">Tomorrow Night Bright</option><option value="ace/theme/tomorrow_night_eighties">Tomorrow Night 80s</option><option value="ace/theme/twilight">Twilight</option><option value="ace/theme/vibrant_ink">Vibrant Ink</option><option value="ace/theme/github_dark">GitHub Dark</option><option value="ace/theme/cloud_editor_dark">CloudEditor Dark</option></optgroup><optgroup label="Original"><option value="ace/theme/gaming">Gaming</option><option value="ace/theme/ultrachaos">Ultra Chaos</option></optgroup></select></button>
+        <!--<button>全体のテーマ:<select id="theme" onchange="changeTheme(this.value)"><option value="light">ライト</option><option value="dark">ダーク</option><option value="gaming">ゲーミング(β)</option></select></button>-->
+            <button>文字のサイズ:<select onchange="changeFontsize(Number(this.value))" id="editorfontsize"><option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="5">5</option><option value="8">8</option><option value="10">10</option><option value="11">11</option><option value="12" selected>12(デフォルト)</option><option value="14">14</option><option value="16">16</option><option value="18">18</option><option value="20">20</option><option value="24">24</option><option value="28">28</option><option value="32">32</option></select></button>
+        <!--<button onclick="changePreviewsize()">プレビューのサイズ</button>-->
+            <button><label><input type="checkbox" onchange="toggleWrap(this.checked)">右端で折り返す</label></button>
+            <button><label><input type="checkbox" onchange="previewfullscreen(this.checked)">プレビュー全画面表示</label></button>
+            <button><label><input type="checkbox" onchange="editorfullscreen(this.checked)">エディター全画面表示</label></button>
+            <button><label><input type="checkbox" id="pertycheck" onchange="document.getElementById('parrotmenu').style.display = this.checked ? 'inline-block' : 'none';">Pertyタブの表示</label></button>
+            <button onclick="showlicense()">ライセンス表示</button> 
+          </div>
+    </div>
+    
+     <div class="dropdown">
+        <button class="dropdown-button" onclick="togglemenu(4)">実行</button>
+        <div class="dropdown-content" id="menu4">
+            <button onclick="run()">プレビューで実行</button>
+        <!--<button onclick="runBlob()">新しいタブで実行(blob)</button>-->
+            <button onclick="runNewtab()">新しいタブで実行</button>
+            <button onclick="clearCache()">キャッシュをクリア</button>
+        </div>
+    </div>
+    
+    <div class="dropdown" id="parrotmenu" style="display:none;">
+        <button class="dropdown-button" onclick="togglemenu(5)">Perty</button>
+        <div class="dropdown-content" id="menu5">
+          <button class="parrotbutton">
+            <img src="" width="128" id="perty">
+          </button>
+         </div>
+    </div>
+    
+</div>
+<div id="main">
+
+  <p><font size="5">html実行</font><br>
+    <small>✅入力された内容はサーバーには送信されません。</small>
+  </p>
+  <div class="controls">
+    <button onclick="run()" id="run-button">実行</button>
+    
+  </div>
+
+  <div id="editor"></div>
+  
+  <div id="preview"></div>
+
+ <div id="savemgr">
+    <p>名前を付けてダウンロード</p>
+  <span style="white-space: nowrap;">
+    <input type="text" placeholder="ファイル名" id="filename" style="text-align: end;" autocomplete="off"><input type="text" style="width: 5px;" value="."><input type="text" placeholder="html" value="html" style="width: 35px;" id="ext">
+  </span><br><br><br>
+    <button onclick="downloadHtml()" style="position: absolute; right: 100px; bottom: 20px;">ダウンロード</button>
+    <button onclick="document.getElementById('savemgr').style.display = 'none'; document.getElementById('background').style.display = 'none';" style="position: absolute; right: 10px; bottom: 20px;">キャンセル</button>
+ </div>
+
+  <div id="license">
+     <iframe src="license.html" frameborder="0" id="licenseIframe"></iframe>
+     <button onclick="$('#license').css('display','none');$('#background').css('display','none');" style="position: absolute; right: 10px; bottom: 5px;">閉じる</button>
+  </div>
+
+<div id="background" style="display: none;"></div>
+
+</div>
+
+  <script>
+      const editor = ace.edit("editor");
+
+        editor.setTheme(localStorage.getItem('editor-theme') || "ace/theme/chrome");
+        editor.setFontSize(Number(localStorage.getItem('editor-fontsize')) || 12);
+        editor.setOption("wrap",  localStorage.getItem('editor-wrap') || false);
+        
+        editor.session.setMode("ace/mode/html");
+        editor.setShowPrintMargin(false);
+
+
+
+        document.getElementById('editortheme').value = localStorage.getItem('editor-theme') || "ace/theme/chrome";
+        document.getElementById('editorfontsize').value = Number(localStorage.getItem('editor-fontsize')) || 12
+
+
+
+    // user settings      
+    function changeEditorTheme(theme) {
+      editor.setTheme(theme);
+      localStorage.setItem('editor-theme', theme)
+    }
+
+    function changeFontsize(size) {
+      editor.setFontSize(size);
+      localStorage.setItem('editor-fontsize', size)
+    }
+
+    function toggleWrap(check) {
+      editor.setOption("wrap", check);
+      localStorage.setItem('editor-wrap', check)
+    }
+
+
+      
+    function run() {
+      const content = editor.getValue();
+      const preview = document.getElementById('preview');
+      // const iframeWidth = document.getElementById('iframeWidth').value;
+      // const iframeHeight = document.getElementById('iframeHeight').value;
+
+      preview.innerHTML = '';
+
+      const iframe = document.createElement('iframe');
+      iframe.id = 'プレビュー';
+      iframe.srcdoc = content;
+
+      preview.appendChild(iframe);
+    }
+
+    function save() {
+      const slot = document.getElementById('slotSelector').value;
+      const content = editor.getValue();
+      const storageKey = slot == 0 ? 'savedHtmlCode' : `savedHtmlCode-${Number(slot) + 1}`;
+
+      if (localStorage.getItem(storageKey)) {
+        if (confirm(`スロット${Number(slot) + 1}に上書き保存してもいいですか？`)) {
+            localStorage.setItem(storageKey, content);
+            alert(`スロット${Number(slot) + 1}に保存しました。`);
+            updateSlotSelector();
+        }
+      } else if (confirm(`スロット${Number(slot) + 1}に保存しますか？`)) {
+            localStorage.setItem(storageKey, content);
+            alert(`スロット${Number(slot) + 1}に保存しました。`);
+            updateSlotSelector();
+      }
+    }
+
+    function load() {
+      const content = editor.getValue();
+      const slot = document.getElementById('slotSelector').value;
+      const storageKey = slot == 0 ? 'savedHtmlCode' : `savedHtmlCode-${Number(slot) + 1}`;
+      const savedHtml = localStorage.getItem(storageKey);
+
+      if (savedHtml) {
+        editor.setValue(savedHtml);
+        
+      } else {
+        alert(`スロット${Number(slot) + 1}には保存されていません。`);
+      }
+    }
+
+    function deleteslot() {
+      const slot = document.getElementById('slotSelector').value;
+      const storageKey = slot == 0 ? 'savedHtmlCode' : `savedHtmlCode-${Number(slot) + 1}`;
+      const savedHtml = localStorage.getItem(storageKey);
+     
+      if (savedHtml && confirm(`スロット${Number(slot) + 1}の内容を削除してよろしいですか？`)) {
+        localStorage.removeItem(storageKey);
+        alert(`スロット${Number(slot) + 1}の内容を削除しました。`)
+        updateSlotSelector();
+      } else if(!localStorage.getItem(storageKey)) {
+          alert(`スロット${Number(slot) + 1}には保存されていません。`)
+      }
+    }
+
+/*    function insertTemplate() {
+      const templateSelector = document.getElementById('templateSelector');
+      const selectedTemplate = templateSelector.value.replace(/\\n/g,'\n').replace(/\\d/g,'"');
+      if (selectedTemplate) {
+        editor.setValue(selectedTemplate);
+        templateSelector.selectedIndex = 0;
+      }
+    }
+*/
+
+    function updateSlotSelector() {
+      const slotSelector = document.getElementById('slotSelector');
+      let selectedSlot = slotSelector.value;
+      slotSelector.innerHTML = '';
+
+      for (let i = 0; i < 20; i++) {
+        const option = document.createElement('option');
+        option.value = i;
+        const storageKey = i == 0 ? 'savedHtmlCode' : `savedHtmlCode-${i + 1}`;
+        option.textContent = localStorage.getItem(storageKey) ? `スロット${i + 1}(保存済/${getSize(storageKey)})` : `スロット${i + 1} (未保存)`;
+        slotSelector.appendChild(option);
+      }
+     slotSelector.selectedIndex = selectedSlot;
+    }
+
+    function getSize(key) {
+      const value = localStorage.getItem(key);
+      if (value === null) return '0B';
+    
+      let size = 0;
+      for (let i = 0; i < value.length; i++) {
+        size += value.charCodeAt(i) > 127 ? 2 : 1;
+      }
+    
+      return size >= 1000000
+        ? (size / 1000000 < 100 ? (size / 1000000).toFixed(1) : (size / 1000000).toFixed(0)) + 'MB' 
+        : size >= 1000
+        ? (size / 1000 < 100 ? (size / 1000).toFixed(1) : (size / 1000).toFixed(0)) + 'KB'
+        : size + 'B';
+     }
+
+    function showSavemgr() {
+      const filenameinput = document.getElementById('filename');
+      const ext = document.getElementById('ext').value;
+      $('#savemgr').css('display','inline-block');
+      $('#background').css('display','block');
+      document.getElementById('background').style.display = 'block';
+      filenameinput.value = new Date(new Date().getTime() + (9 * 60 * 60 * 1000)).toISOString().replace('T','_').replace(/:/g,'-').split('.')[0];
+      filenameinput.focus();
+      filenameinput.select();
+    }
+
+    function downloadHtml() {
+      const filename = document.getElementById('filename').value;
+      const ext = document.getElementById('ext').value;
+      const htmlContent = editor.getValue();
+      const blob = new Blob([htmlContent], { type: 'text/html' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `${filename}.${ext}`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    }
+  
+    function loadfile(event) {
+      const file = event.target.files[0];
+      if (file) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+        editor.setValue(e.target.result);
+        };
+        reader.readAsText(file);
+      }
+    }
+
+    function editorfullscreen(check) {
+        const editorDiv = document.getElementById("editor");
+        const preview = document.getElementById("プレビュー")
+
+      if (check) { editorDiv.classList.add("fullscreen");preview.style.display = "none"; }
+      else { editorDiv.classList.remove("fullscreen");preview.style.display = "block";}
+
+        editor.resize();
+    }
+
+    function previewfullscreen(check) {
+      const preview = document.getElementById("プレビュー");
+      if (check) { preview.classList.add("fullscreen"); } else { preview.classList.remove("fullscreen"); }
+    }
+
+
+   function clearEditor() {
+      if (confirm(`本当にエディターの内容をクリアしますか？`)) {
+          editor.setValue('');
+         }
+   }
+ 
+   /*function runBlob() {
+    const htmlContent = editor.getValue();
+    const blob = new Blob([htmlContent], { type: "text/html" });
+    const url = URL.createObjectURL(blob);
+    window.open(url);
+  }*/
+
+function runNewtab() {
+    const htmlContent = editor.getValue();
+    const chars = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz';
+    let hash = '';
+    for (let i=0;i<10;i++) { hash += chars[Math.floor(Math.random() * chars.length)]; }
+    sessionStorage.setItem(hash, htmlContent);
+    window.open('runtab.html#'+hash);
+}
+
+
+
+const allMenus = [1, 2, 3, 4, 5];
+
+  function closemenu() {
+    allMenus.forEach(num => {
+      document.getElementById('menu' + num).style.display = 'none';
+    })
+  }
+
+
+  function togglemenu(menuNum) {
+    allMenus.forEach(num => {
+        if (num !== menuNum) {
+            document.getElementById('menu' + num).style.display = 'none';
+        }
+    });
+    const currentMenu = document.getElementById('menu' + menuNum);
+    currentMenu.style.display = (currentMenu.style.display === 'block') ? 'none' : 'block';
+        
+    if (screen.availWidth < document.getElementById('menu4').getBoundingClientRect().right) {
+        document.getElementById('menu4').style.right = '0';
+    }
+
+    if (screen.availWidth < document.getElementById('menu5').getBoundingClientRect().right) {
+        document.getElementById('menu5').style.right = '0';
+    }
+}
+
+document.getElementById('main').addEventListener('click', () => {
+    allMenus.forEach(num => {
+        document.getElementById('menu' + num).style.display = 'none';
+    });
+});
+document.getElementById('save').addEventListener('click', () => { allMenus.forEach(num => { document.getElementById('menu' + num).style.display = 'none'; });});
+
+document.getElementById('load').addEventListener('click', () => { allMenus.forEach(num => { document.getElementById('menu' + num).style.display = 'none'; });});
+
+document.getElementById('gotoline').addEventListener('click', () => { allMenus.forEach(num => { document.getElementById('menu' + num).style.display = 'none'; });});
+
+
+
+
+document.getElementById('gotoline').addEventListener('click', () => {
+    allMenus.forEach(num => {
+        document.getElementById('menu' + num).style.display = 'none';
+    });
+});
+
+const menus = [1, 2, 3, 4 ,5];
+menus.forEach(num => {
+    document.getElementById('menu' + num).addEventListener('click', (event) => {
+        event.stopPropagation();
+    });
+});
+        
+        const url = ["parrot","middleparrot","reverseparrot","aussieparrot","boredparrot","boredparrot","fastparrot","slowparrot","ultrafastparrot","sleepingparrot","thankyouparrot","twinsparrot","quadparrot","partywumpus"];
+        const result = url[Math.floor(Math.random() * url.length)];
+        const type = (result == "partywumpus") ? "guests" : "parrots";
+        document.getElementById('perty').src = `https://cultofthepartyparrot.com/${type}/hd/${result}.gif`
+
+        window.addEventListener('beforeunload', function (event) {
+          event.preventDefault();
+          event.returnValue = '';
+        })
+
+
+        function edit(type,action) {
+          if(type == 'n') {
+            editor[action]();
+          } else {
+            editor.execCommand(action);
+          }
+        }
+
+
+        function clearCache() {
+          if(confirm(`${sessionStorage.length}個の実行用キャッシュをクリアしますか？\nスロットなどに保存されたコードはクリアされません。\n(キャッシュはブラウザの終了時に自動削除されます)`)){
+            sessionStorage.clear();
+            alert('クリアしました。')
+          }
+        }
+
+        function showlicense() {
+          $('#background').css('display','block');
+          $('#license').css('display','block');
+        }
+
+    updateSlotSelector()
+   
+
+  hotkeys('alt+s', function(e) {
+    e.preventDefault();
+    save()
+    });
+
+  hotkeys('alt+shift+s', function(e) {
+    e.preventDefault();
+    $('#savemgr').css('display', 'block');
+    $('#background').css('display','block');
+  });
+
+
+  console.log('%chtml実行にようこそ！',
+   'font-size: 2.5em; background: linear-gradient(to right, #aff, #aaf); -webkit-background-clip: text; color: transparent;');
+  console.log('%cデフォルトでもプレビュー内のエラーやログは表示されますが、更にプレビュー内のデバッグをしたいときは以下の方法を、%cやぁりましょう！',
+   'font-size: 1.2em;',
+   'font-size: 1.2em;color: #f00;');
+  console.log('・%cChrome%c、%cEdge%c、%cOpera%cの場合%c:コンソールの左上にある、%ctop%cと表示されている部分を、%cプレビュー(about:srcdoc)%cに変更してください。', 
+   'background: linear-gradient(to right, #d32, #fb0, #293, #37e); -webkit-background-clip: text; color: transparent; font-weight: bold;font-size: 1.2em;',
+   'font-weight: bold;font-size: 1.2em;',
+   'background: linear-gradient(to right, #07d, #4c6); -webkit-background-clip: text; color: transparent; font-weight: bold;font-size: 1.2em;',
+   'font-weight: bold;font-size: 1.2em;',
+   'background: linear-gradient(to right, #f12, #a00); -webkit-background-clip: text; color: transparent; font-weight: bold;font-size: 1.2em;',
+   'font-weight: bold;font-size: 1.2em;','font-size: 1.2em;',
+   'font-weight: bold;font-size: 1.2em;','font-size: 1.2em;',
+   'font-weight: bold;font-size: 1.2em;','font-size: 1.2em;');
+  console.log('・%cFirefox%cの場合%c:開発者ツールの右上にある、%cウィンドウみたいな四角%cをクリックし、%cabout:srcdoc%cを選択してください。', 
+   'background: linear-gradient(to right, #f34,#fe4,#65d); -webkit-background-clip: text; color: transparent; font-weight: bold;font-size: 1.2em;',
+   'font-weight: bold;font-size: 1.2em;','font-size: 1.2em;',
+   'font-weight: bold;font-size: 1.2em;','font-size: 1.2em;',
+   'font-weight: bold;font-size: 1.2em;','font-size: 1.2em;',);
+  console.log('%cまた、「新しいタブで実行」でも、上記と同じ方法でデバッグすることができます。','font-size: 1.2em;')
+  </script>
+</body>
+</html>
