@@ -13,8 +13,7 @@
     <script>
       const c=sessionStorage.getItem(decodeURIComponent(location.hash.slice(1)));
       const o = document.getElementById("プレビュー");
-      if(c!=null){o.srcdoc=c;}else{o.srcdoc='データが見つかりません';}
-      document.title = o.contentDocument.title;
+      if(c!=null){o.srcdoc=c;document.title = o.contentDocument.title;}else{o.srcdoc='データが見つかりません';}
     </script>
   </body>
 </html>
