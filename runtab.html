@@ -16,6 +16,9 @@
       if(c!=null) {
        o.srcdoc=c;
        document.title = o.contentDocument.title;
+       var t = o.contentWindow.document.title;
+       document.title = t;
+
       } else{ 
        o.srcdoc='データが見つかりません';
       }
