@@ -13,12 +13,11 @@
     <script>
       const c=sessionStorage.getItem(decodeURIComponent(location.hash.slice(1)));
       const o = document.getElementById("プレビュー");
+      const t = o.contentWindow.document.title;
+      document.title = t;
       if(c!=null) {
        o.srcdoc=c;
        document.title = o.contentDocument.title;
-       var t = o.contentWindow.document.title;
-       document.title = t;
-
       } else{ 
        o.srcdoc='データが見つかりません';
       }
